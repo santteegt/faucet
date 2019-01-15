@@ -1,0 +1,44 @@
+.header {
+    background: #141414;
+    width: 100%;
+    padding: 1rem;
+    /*padding-right: 2rem / 1.5;*/
+}
+
+.headerContent {
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+    /*display: flex;*/
+    justify-content: space-between;
+    align-items: center;
+}
+
+.headerLogo {
+    /*display: flex;*/
+    /*align-items: center;*/
+    /*width: 50%;*/
+/*    cursor: pointer;
+    color: #000;*/
+}
+
+.headerLogoImage {
+    width: 50px;
+    height: 50px;
+}
+
+.headerTitle {
+    font-size: 1.5rem;
+    color: #fff;
+    margin-left: 20px;
+}
+
+@media (max-width: 640px) {
+  span.headerTitle {
+    font-size: 0.8rem;
+  }
+}
+
+.desc-text {
+  color: #b5b5b5 !important;
+}

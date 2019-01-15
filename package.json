@@ -1,0 +1,20 @@
+{
+	"name": "ocean-faucet",
+	"description": "Ocean Protocol Faucet Server",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/oceanprotocol/faucet.git"
+	},
+	"author": "",
+	"license": "Apache-2.0",
+	"version": "0.0.1",
+	"scripts": {
+		"start": "cd dist && node server.js",
+		"watch": "nodemon start",
+		"build": "./build.sh"
+	},
+	"devDependencies": {
+		"babel-cli": "^6.26.0",
+		"babel-preset-env": "^1.6.1"
+	}
+}

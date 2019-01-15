@@ -1,0 +1,45 @@
+version: '2.1'
+services:
+
+    mongodb:
+        container_name: mongodb
+        image: mongo:3.6
+        ports:
+         - "27017:27017"
+    faucet-server:
+        container_name: faucet-server
+        restart: always
+        build: ./
+        ports:
+         - "3001:3000"
+        environment:
+         NODE_ENV: production
+         MONGODB_URL: "mongodb://mongodb:27017/faucetdb"
+         FAUCET_TOKENS: 5
+         FAUCET_TIMESPAN: 24
+         KEEPER_URI: "http://localhost:8545"
+         AQUARIUS_URI: "http://localhost:5000"
+         BRIZO_URI: "http://localhost:8030"
+         PARITY_URI: "http://localhost:8545"
+         SECRETSTORE_URI: "http://localhost:12001"
+         SECRETSTORE_THRESHOLD: 0
+         ACCOUNT_PWD: "node0"
+         ADDRESS: "0x00bd138abd70e2f00903268f3db08f2d25677c9e"
+        depends_on:
+         - mongodb
+        volumes:
+         - ./docker:/app
+        # networks:
+        #     backend:
+        #         ipv4_address: 172.15.0.30
+    # networks:
+    #   backend:
+    #     driver: bridge
+    #     ipam:
+    #       driver: default
+    #       config:
+    #       - subnet: 172.15.0.1/24
+    #         gateway: 172.15.0.1
+
+    # volumes:
+    #     faucet-server:
