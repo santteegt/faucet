@@ -10,15 +10,14 @@ RUN apk add --no-cache --update\
     cairo-dev\
     python
 
-COPY . /app
 WORKDIR /app
 
-RUN node --version
-RUN python --version
+COPY ./ /app
+
 RUN npm install
 RUN cd server && npm install
 RUN npm run build
 
-CMD [ "npm", "run", "start" ]
+ENTRYPOINT [ "sh", "/app/entrypoint.sh" ]
 
 EXPOSE 3000

@@ -8,6 +8,7 @@ let logger;
 if (config.env == 'test' || config.env == 'local' || config.env == 'development') {
 	logger = console;
 } else {
+	logger = console;
 	// const papertrailTransport = new winston.transports.Papertrail({
 	// 	host: config.logger.host,
 	// 	port: config.logger.port,
