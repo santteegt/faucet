@@ -11,10 +11,8 @@ module.exports = (app, ocean) => {
 			faucetURL: req.protocol + '://' + req.get('host') + '/faucet', 
 			faucetTokens: config.oceanConfig.faucetTokens,
 			faucetTimeSpan: config.oceanConfig.faucetTimeSpan
-		});
-		// res.send(`it's working :) ${req.clientIp}`);
-	    // res.send(`it's working :) ${req.clientIp} ${net.isIP(req.clientIp)}`);
-	});
+		})
+	})
 
 	app.post('/faucet', [
 		check('address', 'Ethereum address not sent').exists(),
@@ -33,7 +31,6 @@ module.exports = (app, ocean) => {
 					errors: errors.array() 
 				});
 			} else {
-				// OceanFaucet.isValidFaucetRequest(req.body, req.timestamp).then(() => {
 				OceanFaucet.isValidFaucetRequest(req.body).then(() => {
 					OceanFaucet.request(req, res, ocean)
 						.then((response) => res.status(200).json(response))
@@ -41,17 +38,5 @@ module.exports = (app, ocean) => {
 				}).catch((err) => res.status(err.statusCode).json(err.result))
 			}
 		}
-	);
-
-	app.get('/faucet/config', (req, res) => {
-		res.status(200).json({
-			faucetTokens: config.oceanConfig.faucetTokens,
-			faucetTimeSpan: config.oceanConfig.faucetTimeSpan,
-			nodeUri: config.oceanConfig.nodeUri,
-	    	aquariusUri: config.oceanConfig.aquariusUri,
-	    	brizoUri: config.oceanConfig.brizoUri,
-	    	parityUri: config.oceanConfig.parityUri,
-	    	secretStoreUri: config.oceanConfig.secretStoreUri
-		})
-	});
+	)
 }

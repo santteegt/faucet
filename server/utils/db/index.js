@@ -1,13 +1,10 @@
 import mongoose from 'mongoose';
-
 import config from '../../config';
-// import config from '@onfig';
 import logger from '../logger';
-// import logger from '@logger';
 
-mongoose.Promise = global.Promise;
+mongoose.Promise = global.Promise
 
-const connection = mongoose.connect(config.database.uri);
+const connection = mongoose.connect(config.database.uri)
 
 connection
 	.then(db => {

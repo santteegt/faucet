@@ -2,7 +2,6 @@ import path from 'path';
 require('dotenv').config({path: path.join(__dirname, '/.env')})
 import fs from 'fs';
 import express from 'express';
-// import time from 'express-timestamp';
 import expressValidator from 'express-validator';
 import cors from 'cors';
 import bodyParser from 'body-parser';
@@ -16,11 +15,8 @@ import logger from './utils/logger';
 // import winstonPapertrail from 'winston-papertrail';
 
 const app = express()
-// app.use(time.init)
 
-// app.use(compression());
 app.use(cors())
-// app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use(requestIp.mw())
@@ -33,7 +29,7 @@ app.set('view engine', 'ejs')
 app.use(express.static(path.join(__dirname, 'public')))
 
 Ocean.getInstance(config.oceanConfig).then((ocean) => {
-  // const ocean = null;
+
   logger.info('Server is successfully connected to Ocean Protocol')
 
   app.listen(config.server.port, err => {

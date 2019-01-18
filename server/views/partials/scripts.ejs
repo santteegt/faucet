@@ -40,9 +40,8 @@
 		  		address: $( '#address' ).val(),
 		  		agent: undefined
 		  	};
-		  	// $.getJSON( "/faucet", reqData)
-		  	$.post( "/faucet", reqData)
-		  	.done(function(data) {
+
+		  	$.post( "/faucet", reqData).done(function(data) {
 		  		$("#pleaseWaitDialog").modal('hide');
 	  			showAndDismissAlert('success', 'Success!', data.message);
 		  	}).fail(function(error) {
