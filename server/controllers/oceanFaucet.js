@@ -8,45 +8,86 @@ const OceanFaucet = {
 	request: (req, res, ocean) => {
 
 		return new Promise((resolve, reject) => {
-			// console.log(req);
-			const params = req.body
-			console.log(`Ocean instance ${ocean}`)
-			console.log(`Account: ${params.address}`)
 
-			const sender = new Account(params.address)
-		    ocean.keeper.market.requestTokens(config.oceanConfig.faucetTokens, params.address).then((rs) => {
-				console.log(`Success requesting tokens for ${params.address}`)
-				new Faucet({
-					'address': params.address,
+			const parameters = req.body
+			const faucetAddress  = new Account(config.oceanConfig.address)
+			const requestAddress = new Account(parameters.address)
+			
+			logger.log(`Request Account: ${parameters.address}`)
+
+			faucetAddress.getBalance().then((balance) => {
+				logger.log(`Faucet Current Ether Balance: ${balance.eth}`)
+				logger.log(`Faucet Current Ocean Balance: ${balance.ocn}`)
+
+				if(balance.eth == 0) {
+					reject({
+						sucess: false, 
+						message: 'Faucet server is not available (Insufficient funds to process request)'
+					})
+				}
+
+				const faucet = new Faucet({
+					'address': parameters.address,
 					'ipaddress': req.clientIp,
-					'agent': params.agent || 'server'
-				}).save((error, record) => {
-					resolve({
-						sucess: true,
-						message: `${config.oceanConfig.faucetTokens} Ocean Tokens were successfully deposited into your account`
-					})	
+					'agent': parameters.agent || 'server'
 				})
-				sender.getOceanBalance().then((balance) => console.log(`Ocean Balance: ${balance}`))
-		  		.catch((err) => console.log(err))
-			}).catch((err) => reject({sucess: false, message: `Error while tryng to request tokens to OceanMarket ${err}`}))
-		})
 
-		// ocean.getAccounts().then((accounts) => {
-		//     console.log(accounts)
-		//     const consumer = accounts[1]
-		//     console.log(`account that request tokens ${consumer.id}`)
-		    
-		    
-		    
-		//     consumer.requestTokens(5).then((some) => {
-	 //    	// sender.requestTokens(5).then((some) => {
-		//       console.log(some)
-		//       consumer.getOceanBalance().then((balance) => console.log(`Ocean Balance: ${balance}`))
-		//       // sender.getOceanBalance().then((balance) => console.log(`Ocean Balance: ${balance}`))
-		//       .catch((err) => console.log(err))
-		//     }).catch((err) => console.log(err))
-		//     // consumer.getBalance().then((some) => console.log(some)).catch((err) => console.log(err))
-	 //  	});
+				if(balance.ocn >= config.oceanConfig.faucetTokens) {
+
+					OceanFaucet.transferTokens(
+						ocean, 
+						faucetAddress, 
+						requestAddress, 
+						config.oceanConfig.faucetTokens, 
+						faucet, 
+						resolve, reject)
+
+				} else {
+				    ocean.keeper.market.requestTokens(
+				    	config.oceanConfig.faucetTokens, faucetAddress.id).then((rs) => {
+
+							logger.log(`Success requesting tokens to OceanMarket for faucet address ${faucetAddress.id}`)
+							OceanFaucet.transferTokens(
+								ocean, 
+								faucetAddress, 
+								requestAddress, 
+								config.oceanConfig.faucetTokens, 
+								faucet, 
+								resolve, reject)
+							
+					}).catch((err) => {
+						const errorMsg = `Error while tryng to request tokens to OceanMarket ${err}`
+						logger.error(errorMsg)
+						reject({sucess: false, message: errorMsg})
+					})
+				}
+			}).catch((error) => {
+				const errorMsg = `Error when trying to connect to Ocean Protocol: ${error}`
+				logger.error(errorMsg)
+				reject({sucess: false, message: errorMsg})
+			})
+		})
+	},
+
+	transferTokens: (ocean, faucetAddress, requestAddress, amount, faucet, resolve, reject) => {
+
+		ocean.keeper.token.send('transfer', faucetAddress.id, [requestAddress.id, amount]).then((rs) => {
+			logger.log(`Success sending ${amount} OceanTokens to ${requestAddress.id}`)
+
+			faucet.save((error, record) => {
+				resolve({
+					sucess: true,
+					message: `${amount} Ocean Tokens were successfully deposited into your account`
+				})	
+			})
+			requestAddress.getOceanBalance().then((balance) => logger.log(`Recipient Ocean Balance: ${balance}`))
+				.catch((err) => logger.error(err))
+
+		}).catch((err) => {
+			const errorMsg = `Error while tryng to send tokens to ${requestAddress.id}: ${err}`
+			logger.error(errorMsg)
+			reject({sucess: false, message: errorMsg})
+		})
 	},
 
 	isValidFaucetRequest: (body) => {
