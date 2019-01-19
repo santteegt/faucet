@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js --exec babel-node --presets babel-preset-env",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/mocha --require babel-register tests/*.js --exit",
+    "coverage": "./node_modules/.bin/nyc --reporter=lcov --reporter=text-lcov npm test",
+    "cov-report": "./node_modules/.bin/nyc report"
   },
   "repository": {
     "type": "git",
@@ -41,13 +43,28 @@
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "babel-preset-stage-2": "^6.24.1",
+    "chai": "^4.2.0",
+    "chai-http": "^4.2.1",
+    "eslint": "^5.9.0",
+    "istanbul": "^0.4.5",
+    "mocha": "^5.2.0",
     "nodemon": "^1.18.9",
+    "nyc": "^13.1.0",
     "prettier": "^1.10.2",
-    "prettierrc": "^0.0.0-5",
-    "eslint": "^5.9.0"
+    "prettierrc": "^0.0.0-5"
   },
-  "_moduleAliases": {
-    "@config": "./config",
-    "@logger": "./utils/logger"
+  "nyc": {
+    "_comment": "Purpose of this part: to do code coverage within Mocha/Chai using Istanbul",
+    "register": "babel-register",
+    "include": [
+      "**/*.js",
+      "./*.js"
+    ],
+    "exclude": [
+      "**/node_modules/**",
+      "**/test/**",
+      "**/coverage/**"
+    ],
+    "all": true
   }
 }
