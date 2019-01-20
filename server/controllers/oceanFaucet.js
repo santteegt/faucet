@@ -1,66 +1,73 @@
 import Faucet from '../models/faucet';
 import logger from '../utils/logger';
 import config from '../config';
-import { Account, Keeper } from '@oceanprotocol/squid';
+import { Ocean, Account, Keeper } from '@oceanprotocol/squid';
 import moment from 'moment';
 
 const OceanFaucet = {
-	request: (req, res, ocean) => {
+	request: (req, res) => {
 
 		return new Promise((resolve, reject) => {
 
-			const parameters = req.body
-			const faucetAddress  = new Account(config.oceanConfig.address)
-			const requestAddress = new Account(parameters.address)
-			
-			logger.log(`Request Account: ${parameters.address}`)
+			Ocean.getInstance(config.oceanConfig).then((ocean) => {
 
-			faucetAddress.getBalance().then((balance) => {
-				logger.log(`Faucet Current Ether Balance: ${balance.eth}`)
-				logger.log(`Faucet Current Ocean Balance: ${balance.ocn}`)
+				const parameters = req.body
+				const faucetAddress  = new Account(config.oceanConfig.address)
+				const requestAddress = new Account(parameters.address)
+				
+				logger.log(`Request Account: ${parameters.address}`)
 
-				if(balance.eth == 0) {
-					reject({
-						sucess: false, 
-						message: 'Faucet server is not available (Insufficient funds to process request)'
+				faucetAddress.getBalance().then((balance) => {
+					logger.log(`Faucet Current Ether Balance: ${balance.eth}`)
+					logger.log(`Faucet Current Ocean Balance: ${balance.ocn}`)
+
+					if(balance.eth == 0) {
+						reject({
+							sucess: false, 
+							message: 'Faucet server is not available (Insufficient funds to process request)'
+						})
+					}
+
+					const faucet = new Faucet({
+						'address': parameters.address,
+						'ipaddress': req.clientIp,
+						'agent': parameters.agent || 'server'
 					})
-				}
 
-				const faucet = new Faucet({
-					'address': parameters.address,
-					'ipaddress': req.clientIp,
-					'agent': parameters.agent || 'server'
+					if(balance.ocn >= config.oceanConfig.faucetTokens) {
+
+						OceanFaucet.transferTokens(
+							ocean, 
+							faucetAddress, 
+							requestAddress, 
+							config.oceanConfig.faucetTokens, 
+							faucet, 
+							resolve, reject)
+
+					} else {
+					    ocean.keeper.market.requestTokens(
+					    	config.oceanConfig.faucetTokens, faucetAddress.id).then((rs) => {
+
+								logger.log(`Success requesting tokens to OceanMarket for faucet address ${faucetAddress.id}`)
+								OceanFaucet.transferTokens(
+									ocean, 
+									faucetAddress, 
+									requestAddress, 
+									config.oceanConfig.faucetTokens, 
+									faucet, 
+									resolve, reject)
+								
+						}).catch((err) => {
+							const errorMsg = `Error while tryng to request tokens to OceanMarket ${err}`
+							logger.error(errorMsg)
+							reject({sucess: false, message: errorMsg})
+						})
+					}
+				}).catch((error) => {
+					const errorMsg = `Error when trying to connect to Ocean Protocol: ${error}`
+					logger.error(errorMsg)
+					reject({sucess: false, message: errorMsg})
 				})
-
-				if(balance.ocn >= config.oceanConfig.faucetTokens) {
-
-					OceanFaucet.transferTokens(
-						ocean, 
-						faucetAddress, 
-						requestAddress, 
-						config.oceanConfig.faucetTokens, 
-						faucet, 
-						resolve, reject)
-
-				} else {
-				    ocean.keeper.market.requestTokens(
-				    	config.oceanConfig.faucetTokens, faucetAddress.id).then((rs) => {
-
-							logger.log(`Success requesting tokens to OceanMarket for faucet address ${faucetAddress.id}`)
-							OceanFaucet.transferTokens(
-								ocean, 
-								faucetAddress, 
-								requestAddress, 
-								config.oceanConfig.faucetTokens, 
-								faucet, 
-								resolve, reject)
-							
-					}).catch((err) => {
-						const errorMsg = `Error while tryng to request tokens to OceanMarket ${err}`
-						logger.error(errorMsg)
-						reject({sucess: false, message: errorMsg})
-					})
-				}
 			}).catch((error) => {
 				const errorMsg = `Error when trying to connect to Ocean Protocol: ${error}`
 				logger.error(errorMsg)

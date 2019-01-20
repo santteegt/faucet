@@ -3,7 +3,7 @@ import config from '../config';
 import { check, body, validationResult } from 'express-validator/check';
 import Eth from 'ethjs';
 
-module.exports = (app, ocean) => {
+module.exports = (app) => {
 
 	app.get('/', (req, res) => {
 		res.render('index', {
@@ -23,16 +23,16 @@ module.exports = (app, ocean) => {
 				return Promise.resolve()
 			}
 		})], (req, res) => {
-			const errors = validationResult(req);
+			const errors = validationResult(req)
 			if (!errors.isEmpty()) {
 				res.status(400).json({ 
 					success: false,
 					message: 'Bad Request',
 					errors: errors.array() 
-				});
+				})
 			} else {
 				OceanFaucet.isValidFaucetRequest(req.body).then(() => {
-					OceanFaucet.request(req, res, ocean)
+					OceanFaucet.request(req, res)
 						.then((response) => res.status(200).json(response))
 						.catch((err) => res.status(500).json(err))
 				}).catch((err) => res.status(err.statusCode).json(err.result))

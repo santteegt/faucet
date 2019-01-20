@@ -1,5 +1,5 @@
 import path from 'path';
-require('dotenv').config({path: path.join(__dirname, '/.env')})
+require('dotenv').config({path: path.join(__dirname, '/.env')});
 import fs from 'fs';
 import express from 'express';
 import expressValidator from 'express-validator';
@@ -7,7 +7,6 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import requestIp from 'request-ip';
 import net from 'net';
-import { Ocean, Logger } from '@oceanprotocol/squid';
 import config from './config';
 import logger from './utils/logger';
 // import winston from 'winston';
@@ -28,29 +27,21 @@ app.set('view engine', 'ejs')
 // set path for static assets
 app.use(express.static(path.join(__dirname, 'public')))
 
-Ocean.getInstance(config.oceanConfig).then((ocean) => {
+app.listen(config.server.port, err => {
+  if (err) {
+    logger.error(err)
+    process.exit(1)
+  }
 
-  logger.info('Server is successfully connected to Ocean Protocol')
+  require('./utils/db')
 
-  app.listen(config.server.port, err => {
-    if (err) {
-      logger.error(err);
-      process.exit(1);
-    }
+  fs.readdirSync(path.join(__dirname, 'routes')).map(file => {
+    require('./routes/' + file)(app)
+  })
 
-    require('./utils/db');
+  logger.info(
+    `Ocean Faucet server is now running on port ${config.server.port} in ${config.env} mode`
+  )
+})
 
-    fs.readdirSync(path.join(__dirname, 'routes')).map(file => {
-      require('./routes/' + file)(app, ocean);
-    });
-
-    logger.info(
-      `Ocean Faucet server is now running on port ${config.server.port} in ${config.env} mode`
-    );
-  });
-}).catch((error) => {
-  logger.error(`Error when trying to connect to Ocean Protocol: ${error}`)
-  process.exit(1);
-});
-
-module.exports = app;
+module.exports = app
