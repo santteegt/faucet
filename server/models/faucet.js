@@ -1,8 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 import timestamps from 'mongoose-timestamp';
 
-import logger from '../utils/logger';
-
 export const FaucetSchema = new Schema(
 	{
 		address: {

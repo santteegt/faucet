@@ -27,7 +27,7 @@ app.set('view engine', 'ejs')
 // set path for static assets
 app.use(express.static(path.join(__dirname, 'public')))
 
-app.listen(config.server.port, err => {
+const server = app.listen(config.server.port, err => {
   if (err) {
     logger.error(err)
     process.exit(1)
@@ -44,4 +44,4 @@ app.listen(config.server.port, err => {
   )
 })
 
-module.exports = app
+module.exports = server
