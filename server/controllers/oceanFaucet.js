@@ -1,6 +1,6 @@
+var reload = require('require-reload')(require)
 import Faucet from '../models/faucet';
 import logger from '../utils/logger';
-import config from '../config';
 import { Ocean, Account, Keeper } from '@oceanprotocol/squid';
 import moment from 'moment';
 
@@ -9,6 +9,7 @@ const OceanFaucet = {
 
 		return new Promise((resolve, reject) => {
 
+			let config = reload('../config').default
 			Ocean.getInstance(config.oceanConfig).then((ocean) => {
 
 				const parameters = req.body
@@ -24,12 +25,12 @@ const OceanFaucet = {
 					if(balance.eth == 0) {
 						reject({
 							sucess: false, 
-							message: 'Faucet server is not available (Insufficient funds to process request)'
+							message: 'Faucet server is not available (Seed account does not have enought funds to process request)'
 						})
 					}
 
 					const faucet = new Faucet({
-						'address': parameters.address,
+						'address': parameters.address.toUpperCase(),
 						'ipaddress': req.clientIp,
 						'agent': parameters.agent || 'server'
 					})
@@ -99,7 +100,8 @@ const OceanFaucet = {
 
 	isValidFaucetRequest: (body) => {
 		return new Promise((resolve, reject) => {
-			Faucet.find({address: body.address}).sort('-createdAt').exec((err, data) => {
+			let config = reload('../config').default
+			Faucet.find({address: body.address.toUpperCase()}).sort('-createdAt').exec((err, data) => {
 				if (err)
 					reject({statusCode: 500, result: {success: false, message: err}})
 				if(data && data.length > 0) {
