@@ -15,6 +15,7 @@
   - [Prerequisites](#prerequisites)
   - [Get Started](#get-started)
       - [Configuration](#configuration)
+      - [Examples](#examples)
   - [Contributing](#contributing)
   - [License](#license)
 
@@ -86,6 +87,30 @@ Once Ocean tesnet is up and running, you can deploy the Faucet server using `doc
 git clone https://github.com/santteegt/faucet
 cd faucet
 docker-compose up
+```
+
+### Examples
+
+A user can request Ocean tokens using the Faucet Server UI at [http://localhost:3001](http://localhost:3001) or the sending a request to the REST API:
+ `wget --header=’Content-Type: application/json’ --post-data '{"address": "0x7E187af69973a66e049a15E763c97CB726765f87", "agent": "twitter"}' http://localhost:3001/faucet`
+
+Sample Request Body:
+
+```js
+{
+    "address": <string>,  //required
+    "agent": <string>, //optional, Possible values - server, twitter, telegram, gitter  
+}
+```
+
+Sample Response Body
+
+```
+200
+{
+    "success": true, // whether the tokens have been transferred successfully or not.
+    "message": <string> (X tokens have been transferred to your account xxxxxxx.  
+}
 ```
 
 ## Development
