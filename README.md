@@ -107,6 +107,14 @@ cd server
 npm run test
 ```
 
+To get a test coverage report:
+
+```bash
+cd server
+npm run coverage
+npm run cov-report
+```
+
 ### Production build
 
 ```bash
