@@ -10,8 +10,27 @@ module.exports = (app) => {
 			page:'Home',
 			faucetURL: req.protocol + '://' + req.get('host') + '/faucet', 
 			faucetTokens: config.oceanConfig.faucetTokens,
+			faucetEth: config.oceanConfig.faucetEth,
 			faucetTimeSpan: config.oceanConfig.faucetTimeSpan
 		})
+	})
+
+	app.get('/trxhash', [
+		check('id', 'Faucet request ID not sent').exists()], (req, res) => {
+
+			const errors = validationResult(req)
+			if (!errors.isEmpty()) {
+				res.status(400).json({ 
+					success: false,
+					message: 'Bad Request',
+					errors: errors.array() 
+				})
+			} else {
+				OceanFaucet.getFaucetRequestEthTrxHash(req.query.id)
+				.then((response) => res.status(200).json(response))
+				.catch((err) => res.status(err.statusCode).json(err.result))
+			}
+
 	})
 
 	app.post('/faucet', [
@@ -31,7 +50,7 @@ module.exports = (app) => {
 					errors: errors.array() 
 				})
 			} else {
-				OceanFaucet.isValidFaucetRequest(req.body).then(() => {
+				OceanFaucet.isValidFaucetRequest(req).then(() => {
 					OceanFaucet.request(req, res)
 						.then((response) => res.status(200).json(response))
 						.catch((err) => res.status(500).json(err))

@@ -51,12 +51,13 @@ describe('Test Faucet server requests', () => {
         })
     })
 
-    it('should Deposit 10 Ocean Tokens', (done) => {
+    it('should Deposit 5 Ocean Tokens and 1 ETH', (done) => {
         let req = { address: '0x1F08a98e53b2bDd0E6aE8E1140017e26E935780D' }
         chai.request(app).post('/faucet').send(req).end(function(err, res) {
-            expect(res.body).not.equal(null)
-            expect(res.body.message).to.eql('10 Ocean Tokens were successfully deposited into your account')            
             expect(res).to.have.status(200)
+            expect(res.body).to.not.be.null
+            expect(res.body.message).to.eql('5 Ocean Tokens and 1 ETH were successfully deposited into your account')
+            expect(res.body.record).to.not.be.null
             done()
         })
     })
@@ -65,12 +66,12 @@ describe('Test Faucet server requests', () => {
         let req = { address: '0x1F08a98e53b2bDd0E6aE8E1140017e26E935780D' }
         chai.request(app).post('/faucet').send(req).end(function(err, res) {
             expect(res.body).not.equal(null)
-            expect(res.body.message).to.eql('10 Ocean Tokens were successfully deposited into your account')            
+            expect(res.body.message).to.eql('5 Ocean Tokens and 1 ETH were successfully deposited into your account')
             expect(res).to.have.status(200)
 
             chai.request(app).post('/faucet').send(req).end(function(err, res) {
                 expect(res.body).not.equal(null)
-                expect(res.body.message).to.include('Tokens were last transferred to this account')
+                expect(res.body.message).to.include('Tokens were last transferred to you')
                 expect(res).to.have.status(400)
                 done()
             })
@@ -108,7 +109,7 @@ describe('Test Faucet request using empty (no ETH funds) seed account', () => {
         let req = { address: '0x7E187af69973a66e049a15E763c97CB726765f87' }
         chai.request(app).post('/faucet').send(req).end(function(err, res) {
             expect(res.body).not.equal(null)
-            expect(res.body.message).to.eql('Faucet server is not available (Seed account does not have enought funds to process request)')
+            expect(res.body.message).to.eql('Faucet server is not available (Seed account does not have enought funds to process the request)')
             expect(res).to.have.status(500)
             done()
         })

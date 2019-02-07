@@ -9,6 +9,19 @@ export const FaucetSchema = new Schema(
 			trim: true,
 			required: true
 		},
+		tokenAmount: {
+			type: Number,
+			required: true
+		},
+		ethAmount: {
+			type: Number,
+			required: true
+		},
+		ethTrxHash: {
+			type: String,
+			trim: true,
+			required: false
+		},
 		ipaddress: {
 			type: String,
 			trim: true,

@@ -44,6 +44,15 @@
 		  	$.post( "/faucet", reqData).done(function(data) {
 		  		$("#pleaseWaitDialog").modal('hide');
 	  			showAndDismissAlert('success', 'Success!', data.message);
+	  			window.myInterval = setInterval(function() {
+	  				console.log('Waiting for trx confirmation...')
+		  			$.getJSON( `/trxHash?id=${data.record}`, function(data) {
+		  				if(data && data.statusCode == 200) {
+		  					showAndDismissAlert('success', 'ETH Transaction Hash', data.result.trxHash);
+		  					clearInterval(window.myInterval)
+		  				}
+		  			})
+		  		}, 5000)
 		  	}).fail(function(error) {
 		  		$("#pleaseWaitDialog").modal('hide');
 		  		const errors = error.responseJSON.errors;

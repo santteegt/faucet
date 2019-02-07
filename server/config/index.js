@@ -15,6 +15,8 @@ export default {
 	oceanConfig: {
 		// tokens per request
 		faucetTokens: process.env.FAUCET_TOKENS || 10,
+		// ETH per request
+		faucetEth: process.env.FAUCET_ETH || 3,
 		// timespan between requests (in hours)
 		faucetTimeSpan: process.env.FAUCET_TIMESPAN || 24,
 		// the node of the blockchain to connect to, could also be infura
